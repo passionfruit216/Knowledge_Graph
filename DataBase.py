@@ -6,6 +6,7 @@ class Data2Neo4j:
     def __init__(self, url, username, password):
         self.graph = Graph(url, user=username, password=password)
         self.matcher = NodeMatcher(self.graph)
+        print("*********数据库连接成功***********")
 
     def create_node(self, label, name):
         node = Node(label, name=name)
@@ -20,7 +21,7 @@ class Data2Neo4j:
             raise Exception("Node not found")
 
     def query(self, query):
-        return self.graph.run(query)
+        return self.graph.run(query).data()
 
 
     def revise_add_node(self, label, name,new_property):
@@ -36,3 +37,27 @@ class Data2Neo4j:
 
         for i in result:
             print(i)
+
+    def Precise_queries(self, label, names):
+        query = f"MATCH (disease:{label}{{name:'{names}'}})-[r]-(related) RETURN disease, r, related"
+        result = self.query(query)
+        for i in result:
+            print(i)
+
+        return query
+
+    def show_all_label(self):
+        result = self.query(f"CALL db.labels()")
+        res =[]
+        for i in result:
+            res.append(i["label"])
+        return res
+
+    def show_all_Node(self):
+        result = self.query(f"MATCH (n) RETURN n.name")
+        res =set()
+        for i in result:
+            if i["n.name"] is None:
+                continue
+            res.add(i["n.name"])
+        return res
