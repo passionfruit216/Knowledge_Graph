@@ -3,46 +3,41 @@ import re
 from langchain.prompts.chat import HumanMessagePromptTemplate,SystemMessagePromptTemplate,ChatPromptTemplate
 from langchain.chains import LLMChain
 from langchain.output_parsers import StructuredOutputParser,ResponseSchema
+from Custom_paser import CustomOutputParser
 # 后续封装成类 text2neo4j
 class text2neo4j():
     def __init__(self,DataBase,LLM):
         self.db =DataBase
         self.llm = LLM
     def get_texts(self,text:str):
-        template="""请你根据用户的输入内容,尽量依据下面的主题列表归纳一个输入的主题,如果实在找不到就自行归纳一个主题.
-        然后将用户的输入内容提取尽可能多的关系三元组,按照{format_instructions}的方式输出,可以自行完善一些关系.\n
-        主题列表:{toxic}
-        用户的输入:
+        template = """你擅长关系提取,将用户输入的文字按照例子尽可能多的进行关系提取,并确定文本内容的唯一主体.并从主题列表确认用户输入文字的主题,如果主题列表中无法确定主题,请自行确认主题.
+主题列表:[动物,植物,人物,地点,事件,其他]
+并以{format_instructions}的格式输出.\n
+例子: 树袋熊的生活几乎全部在桉树上度过，每天睡眠时间长达17-20小时，具有夜行性和领域性
+提取到的关系:(树袋熊,生活在,树上),(树袋熊,睡眠时间,17-20小时),(树袋熊,习性,夜行性和领域性)
+提取到的唯一主体: 树袋熊
+用户输入的文字:
         """
         sys_message= SystemMessagePromptTemplate.from_template(template)
-        human_template =  "{text}"
+        human_template = "{text}"
+        OutputParser=CustomOutputParser()
         human_message = HumanMessagePromptTemplate.from_template(human_template)
         message = ChatPromptTemplate.from_messages([sys_message,human_message])
-        Responses = [
-            ResponseSchema(name="主题",description="根据内容归纳出的主题"),
-            ResponseSchema(name="主体",description="提取到的主体"),
-            ResponseSchema(name="关系", description="提取到的关系"),
-            ResponseSchema(name="主体",description="提取到的主体")
-        ]
-        OutputParser = StructuredOutputParser.from_response_schemas(Responses)
         chain = LLMChain(llm=self.llm,prompt=message)
-        chain.run({"text":text,"format_instructions":OutputParser.get_format_instructions(),"toxic":self.db.show_all_label()})
-
-
-
-
-    # def text2db(self,words):
-    #     Relations = words.split('[')[1].split(']')[0]
-    #     pattern = r"\{'head': '(.*?)', 'relation': '(.*?)', 'tail': '(.*?)'\}"
-    #
-    #     matches = re.findall(pattern, Relations)
-    #     res = ""
-    #     for match in matches:
-    #         db.create_node("疾病", match[0])
-    #         db.create_node("疾病", match[2])
-    #         db.create_relation("疾病", match[0], match[2], match[1])
-    #         res += "添加了关系:" + match[0] + "-" + match[1] + "-" + match[2] + "\n"
-
-# 实现 更详细的关系添加和关系融合
+        res=chain.run({"text":text,"format_instructions":OutputParser.get_format_instructions()})
+        output = OutputParser.parse(res)
+        return output
+    def text2db(self,input:str):
+        output = self.get_texts(input)
+        label = output["主题"]
+        name = output["唯一主体"]
+        self.db.create_node(label,name)
+        for i in output["关系"]:
+            if not self.db.node_is_exist(label,i[0]):
+                self.db.create_node(label ,i[0])
+            if not self.db.node_is_exist(label,i[2]):
+                self.db.create_node(label,i[2])
+            self.db.create_relation(label,i[0],i[2],i[1])
+        print("关系创建成功")
 
 

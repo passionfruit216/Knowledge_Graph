@@ -7,8 +7,8 @@ from langchain.callbacks.manager import CallbackManagerForLLMRun
 class chat_glm4(LLM):
     max_token: int = 8192
     do_sample: bool = True
-    temperature: float = 0.0
-    top_p = 0.8
+    temperature: float = 0.5
+    top_p = 0.7
     tokenizer: object = None
     model: object = None
     history: List = []
@@ -35,6 +35,7 @@ class chat_glm4(LLM):
         response = self.client.chat.completions.create(
             model="glm-4",  # 填写需要调用的模型名称
             messages=[{"role": "user", "content": prompt}] ,
+            max_tokens=8192,
         )
         result = response.choices[0].message.content
         return result

@@ -61,3 +61,8 @@ class Data2Neo4j:
                 continue
             res.add(i["n.name"])
         return res
+
+    def node_is_exist(self,label,name):
+        result = self.query(f"MATCH (n:{label} {{name: '{name}'}})RETURN COUNT(n) > 0 as nodeExists")
+        res = result[0]["nodeExists"]
+        return res
