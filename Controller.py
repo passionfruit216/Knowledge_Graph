@@ -7,6 +7,8 @@ import pandas as pd
 import re
 import os
 from DataBase import *
+
+# 程序的核心控制器
 class controller():
     def __init__(self,DataBase,LLM):
         self.db = DataBase
@@ -20,6 +22,7 @@ class controller():
 
 
     def insert_long_text(self,text:str):
+        # 待使用vector_db实现
         pass
 
 

@@ -2,7 +2,7 @@
 # 完成数据库的查询 以及返回结果
 from py2neo import Graph, Node, Relationship, NodeMatcher
 
-
+# 数据库操作类
 class Data2Neo4j:
     def __init__(self, url, username, password):
         self.graph = Graph(url, user=username, password=password)

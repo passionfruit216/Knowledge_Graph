@@ -12,10 +12,10 @@ import os
 from tqdm import tqdm
 import gradio as gr
 
-
-os.environ["OPENAI_API_KEY"] = "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"
-os.environ["http_proxy"] = "http://127.0.0.1:9421"
-os.environ["https_proxy"] = "http://127.0.0.1:9421"
+#　设置代理,用openai Embedding
+# os.environ["OPENAI_API_KEY"] = ""
+# os.environ["http_proxy"] = ""
+# os.environ["https_proxy"] = ""
 
 
 def get_files(file_path):

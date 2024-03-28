@@ -9,11 +9,12 @@ import os
 from langchain_openai import ChatOpenAI
 from langchain.prompts import PromptTemplate
 from langchain_text_splitters import CharacterTextSplitter
-os.environ["OPENAI_API_KEY"] = "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"
-url = "neo4j://localhost:7687"
-username = "neo4j"
-password = "12345678"
-index_name = "*"
+# os.environ["OPENAI_API_KEY"] = ""  填写自己的openai key
+# 填写自己的数据库信息
+url = ""
+username = ""
+password = ""
+index_name = ""
 store = Neo4jVector.from_existing_index(
     OpenAIEmbeddings(),
     url=url,

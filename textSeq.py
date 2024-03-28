@@ -4,7 +4,9 @@ from langchain.prompts.chat import HumanMessagePromptTemplate, SystemMessageProm
 from langchain.chains import LLMChain
 from langchain.output_parsers import StructuredOutputParser, ResponseSchema
 from Custom_paser import CustomOutputParser
-# 后续封装成类 text2neo4j
+
+
+# 实现用户输入的文本提取关系并插入数据库
 
 
 class text2neo4j():
@@ -39,7 +41,8 @@ class text2neo4j():
         output = self.get_texts(input)
         label = output["主题"]
         name = output["唯一主体"]
-        self.db.create_node(label, name)
+        if not self.db.node_is_exist(label, name):
+            self.db.create_node(label, name)
         for i in output["关系"]:
             if not self.db.node_is_exist(label, i[0]):
                 self.db.create_node(label, i[0])
