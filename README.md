@@ -56,29 +56,33 @@ Clone 这个 project
 ## API 参考
 
 
-- Chat_GLM3,Chat_GLM4类
-| 函数 | 参数     | 描述                |
-| :-------- | :------- | :------------------------- |
-| `__init__` | `model_path` | **必选**. 你的模型地址 |
-| `_call` | `prompt ,stop ,run_manager` | **必选** prompt你的提示词模板 **可选**. stop ,run_manager 停止词和回调函数 |
-| `_llm_type` | `无` | 返回模型的型号 |
+- Chat_GLM3, Chat_GLM4 类
+
+| 函数     | 参数           | 描述                              |
+| :------- | :------------- | :-------------------------------- |
+| `__init__`   | `model_path`  | **必选**. 模型地址                |
+| `_call`      | `prompt, stop, run_manager` | **必选**. prompt为提示词模板，stop和run_manager为停止词和回调函数（可选） |
+| `_llm_type`  | 无             | 返回模型的类型                     |
 
 
-- Controller类
-| 函数 | 参数     | 描述                |
-| :-------- | :------- | :------------------------- |
-| `__init__` | `DataBase,LLM` | **必选**. 你的数据库和模型(必须已经接入langchain) |
-| `insert_short_text` | `text` | **必选**. 用户输入文本创建关系 |
-| `insert_long_text` | `text` | 待实现 |
-| `query` | `text` | **必选**. 用户输入的问题高效查询数据库 |
+- Controller 类
 
-- CustomOutputParser类
-| 函数 | 参数     | 描述                |
-| :-------- | :------- | :------------------------- |
-| `__init__` | `code_type` | **可选**. 输出的语言类型(暂定为python) |
-| `parse` | `response` | **必选**. 获取模型的输出 |
-| `get_format_instructions` | `无` |  指导模型模型的输出 |
-| `_type` | `无` |输出解释器类型 |
+| 函数                  | 参数     | 描述                                       |
+| :------------------- | :------- | :----------------------------------------- |
+| `__init__`              | `DataBase, LLM` | **必选**. 数据库和模型（必须已经接入langchain） |
+| `insert_short_text`   | `text`   | **必选**. 使用用户输入文本创建关系                 |
+| `insert_long_text`    | `text`   | 待实现                                     |
+| `query`               | `text`   | **必选**. 高效查询数据库的用户输入问题              |
+
+
+- CustomOutputParser 类
+
+| 函数                | 参数         | 描述                                    |
+| :------------------- | :----------- | :-------------------------------------- |
+| `__init__`            | `code_type`  | **可选**. 输出的语言类型（暂定为python） |
+| `parse`              | `response`   | **必选**. 获取模型输出                      |
+| `get_format_instructions` | 无       | 指导模型输出的格式                        |
+| `_type`              | 无           | 输出解释器类型                             |
 
 
 
