@@ -1,0 +1,8 @@
+langchain~=0.1.12
+torch~=2.1.1+cu118
+py2neo~=2021.2.4
+transformers~=4.35.2
+zhipuai~=2.0.1
+gradio~=4.21.0
+tqdm~=4.66.2
+pandas~=2.2.1
