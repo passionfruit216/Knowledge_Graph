@@ -9,10 +9,12 @@ format = """输出以python字典的格式输出.其中包含三个键,一个是
         唯一主体: 根据用户文本内容确定的唯一主体\n
         关系: 根据用户文本内容提取的关系三元组\n
         """
+
+
 class CustomOutputParser(BaseOutputParser[str]):
     code_type: str = None
 
-    def __init__(self,code_type:Literal["python"] = "python"):
+    def __init__(self, code_type: Literal["python"] = "python"):
         super().__init__()
         # self.format_instructions =format
         self.code_type = code_type
@@ -28,7 +30,9 @@ class CustomOutputParser(BaseOutputParser[str]):
             except Exception as e:
                 raise OutputParserException(f"解析字典失败: {e}")
         else:
-            OutputParserException("The response has no code block.", llm_output=response)
+            OutputParserException(
+                "The response has no code block.",
+                llm_output=response)
 
     def get_format_instructions(self) -> str:
         return format

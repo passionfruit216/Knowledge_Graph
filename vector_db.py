@@ -16,6 +16,8 @@ import gradio as gr
 os.environ["OPENAI_API_KEY"] = "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"
 os.environ["http_proxy"] = "http://127.0.0.1:9421"
 os.environ["https_proxy"] = "http://127.0.0.1:9421"
+
+
 def get_files(file_path):
     print(type(file_path))
     print(file_path)
@@ -59,18 +61,23 @@ def get_text(file_path):
         docs.extend(loader.load())
     return docs
 
+
 def process(file_path="documentations"):
     try:
         files_loader = get_text(file_path)
 
-        text_splitter = CharacterTextSplitter(chunk_size=200, chunk_overlap=0)
+        text_splitter = CharacterTextSplitter(chunk_size=200, chunk_overlap=50)
 
         docs = text_splitter.split_documents(files_loader)
 
         embeddings = OpenAIEmbeddings()
 
-        db = Neo4jVector.from_documents(docs, embeddings, url="neo4j://localhost:7687", username="neo4j",
-                                        password="12345678")
+        db = Neo4jVector.from_documents(
+            docs,
+            embeddings,
+            url="neo4j://localhost:7687",
+            username="neo4j",
+            password="12345678")
 
         return "文档已经成功加载到数据库中"
 
@@ -86,7 +93,10 @@ with gr.Blocks() as app:
     <b>3.支持添加PDF,TXT,MARKDOWN,HTML格式文档<b><br>
     """
     )
-    inp = gr.Textbox(placeholder="请输入文件路径", label='文件路径',info="文件夹里面支持的文件都会被添加到数据库中")
+    inp = gr.Textbox(
+        placeholder="请输入文件路径",
+        label='文件路径',
+        info="文件夹里面支持的文件都会被添加到数据库中")
     out = gr.Textbox(label='运行结果')
     button = gr.Button("提交")
     button.click(fn=process, inputs=inp, outputs=out)

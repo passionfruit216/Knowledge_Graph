@@ -10,10 +10,10 @@ from langchain_openai import ChatOpenAI
 from langchain.prompts import PromptTemplate
 from langchain_text_splitters import CharacterTextSplitter
 os.environ["OPENAI_API_KEY"] = "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"
-url="neo4j://localhost:7687"
-username="neo4j"
-password="12345678"
-index_name="*"
+url = "neo4j://localhost:7687"
+username = "neo4j"
+password = "12345678"
+index_name = "*"
 store = Neo4jVector.from_existing_index(
     OpenAIEmbeddings(),
     url=url,
@@ -21,7 +21,7 @@ store = Neo4jVector.from_existing_index(
     password=password,
     index_name=index_name,
 )
-result=store.similarity_search("感冒怎么护理?",k=2)
+result = store.similarity_search("感冒怎么护理?", k=2)
 print(result)
 retriever = store.as_retriever()
 
@@ -29,12 +29,16 @@ template = """使用以下上下文来回答最后的问题。如果你不知道
 {context}
 问题: {question}
 有用的回答:"""
-prompt = PromptTemplate(template=template,input_variables=["context","question"])
+prompt = PromptTemplate(
+    template=template,
+    input_variables=[
+        "context",
+        "question"])
 qa_chain = RetrievalQA.from_chain_type(
-        ChatOpenAI(temperature=0),
-        retriever=retriever,
-        return_source_documents=True,
-        chain_type_kwargs={"prompt": prompt},
+    ChatOpenAI(temperature=0),
+    retriever=retriever,
+    return_source_documents=True,
+    chain_type_kwargs={"prompt": prompt},
 )
 
 print(qa_chain({"query": "感冒怎么护理?"})["result"])
