@@ -33,12 +33,11 @@ class text2neo4j():
         chain = LLMChain(llm=self.llm, prompt=message)
         res = chain.run(
             {"text": text, "format_instructions": OutputParser.get_format_instructions()})
-        print(res)
         output = OutputParser.parse(res)
+        print(output)
         return output
 
-    def text2db(self, input: str):
-        output = self.get_texts(input)
+    def text2db(self, output: dict):
         label = output["主题"]
         name = output["唯一主体"]
         if not self.db.node_is_exist(label, name):

@@ -6,6 +6,7 @@ from langchain.prompts.chat import HumanMessagePromptTemplate, SystemMessageProm
 from langchain.chains.llm import LLMChain
 from langchain.output_parsers import StructuredOutputParser, ResponseSchema
 from langchain.prompts import PromptTemplate
+from langchain.cache import SQLiteCache
 
 class inputs2db():
     def __init__(
@@ -14,6 +15,7 @@ class inputs2db():
             LLM):
         self.db = DataBase
         self.llm = LLM
+        self.cache = SQLiteCache(database_path="./cache.db")
         print("**************** 根据用户的提问生成查询语句 *******************")
 
 
