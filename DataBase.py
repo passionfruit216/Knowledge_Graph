@@ -117,7 +117,7 @@ class Data2Neo4j:
         net.show('./networks/' + file_name, notebook=False)
 
 
-    def create_temp_html(self,relations:dict):
+    def create_temp_html(self,relations:dict, file_name:str="temp.html"):
         net = Network(directed=True, width="1920px", height="1080px", cdn_resources="in_line")
         # 节点
         color_entity = "#00FF00"
@@ -136,4 +136,4 @@ class Data2Neo4j:
         )
         net.show_buttons(filter_=['physics'])
         net.set_edge_smooth(smooth_type='dynamic')
-        net.show('./networks/temp.html', notebook=False)
+        net.show('./networks/{}'.format(file_name), notebook=False)

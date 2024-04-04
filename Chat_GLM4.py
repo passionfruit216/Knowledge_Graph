@@ -30,7 +30,7 @@ class chat_glm4(LLM):
 # 重载call函数
     def _call(self, prompt: str,
               history: List = [],
-              stop: Optional[List[str]] = None
+              stop: Optional[List[str]] =None
               ):
         if history is None:
             history = []
@@ -39,6 +39,7 @@ class chat_glm4(LLM):
             model="glm-4",  # 填写需要调用的模型名称
             messages=[{"role": "user", "content": prompt}],
             max_tokens=8192,
+            stop = stop
 
         )
         result = response.choices[0].message.content

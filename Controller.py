@@ -11,7 +11,9 @@ from langchain.cache import SQLiteCache
 from langchain.chains import ConversationChain
 from pyvis.network import Network
 import time
-
+from custom_agent import Custom_agent
+from langchain.agents import AgentExecutor
+from Basic_Serach_tool import BasicSearchTool
 # 程序的核心控制器
 class controller():
     def __init__(self,DataBase,LLM):
@@ -80,3 +82,11 @@ class controller():
         end_time = time.time()
         print(f"程序运行时间：{end_time - start_time}")
         return result
+
+
+    def agent_init(self):
+        tools = [BasicSearchTool(llm=self.llm)]
+        agent = Custom_agent(tools=tools, llm=self.llm)
+        agent_exec = AgentExecutor.from_agent_and_tools(agent=agent, tools=tools, verbose=True, max_iterations=1)
+        print("Agent初始化成功")
+        return agent_exec

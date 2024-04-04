@@ -36,7 +36,8 @@ pwd = st.sidebar.text_input('Neo4j Password', type='password')
 db= Data2Neo4j(url=url,username=username,password=pwd)
 llm = chat_glm4(zhipuai_api_key=api_key)
 controller = controller(DataBase=db,LLM=llm)
-
+with st.container():
+    network = st.toggle("联网开关")
 
 if on:
     prompt=st.chat_input("请输入问题")
@@ -55,12 +56,16 @@ else:
         st.warning("历史消息列表为空")
     question = st.chat_input("请输入问题")
     if question:
-        conversation = ConversationChain(
-            llm=llm,
-            verbose=True,
-            memory=st.session_state.buffer_memory
-        )
-        result = conversation.predict(input=question)
+        if network:
+            agent=controller.agent_init()
+            result=agent.run(question)
+        else:
+            conversation = ConversationChain(
+                llm=llm,
+                verbose=True,
+                memory=st.session_state.buffer_memory
+            )
+            result = conversation.predict(input=question)
         with st.chat_message("user"):
             st.markdown(question)
 
