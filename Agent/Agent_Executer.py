@@ -6,28 +6,18 @@ from typing import List, Union
 from langchain.schema import AgentAction, AgentFinish, OutputParserException
 import re
 from Chat_GLM4 import chat_glm4
-from Basic_OutputParser import Basic_OutPutParser
-from Custom_Agent_Prompt import Custom_Agent_Promptlate
-from Tool_List import BasicSearchTool
+from Agent.Basic_OutputParser import Basic_OutPutParser
+from Agent.Custom_Agent_Prompt import Custom_Agent_Promptlate
 SERPAPI_API_KEY = "c77aa41c55a1ece06909530ccfbe99a6fb2242bded10bb4b7cac7aad6ebc600d"
-llm = chat_glm4(zhipuai_api_key="9014647fdc7a2ea48bff0a141543bdf3.MLP0Fp7UeKjJ19II")
-search = SerpAPIWrapper(serpapi_api_key=SERPAPI_API_KEY)
-# 加载工具
-Tools = [
-    Tool(
-        name = "Search",
-        func=search.run,
-        description="基于搜索引擎的搜索工具,当您需要在互联网上搜索信息时很有用"
-    ),
-
-]
-
-print(Tools)
+llm = chat_glm4(
+    zhipuai_api_key="9014647fdc7a2ea48bff0a141543bdf3.MLP0Fp7UeKjJ19II")
 
 
-# 加载模板
-
-template = """
+class Custom_Agent():
+    def __init__(self, llm):
+        self.llm = llm
+        self.search = SerpAPIWrapper(serpapi_api_key=SERPAPI_API_KEY)
+        self.template = """
 请尽可能以逻辑思维回答下列问题。您可以使用以下工具:
 
 {tools}
@@ -56,23 +46,33 @@ template = """
 提问: {input}
 {agent_scratchpad}
 """
-prompt = Custom_Agent_Promptlate(
-    template=template,
-    tools=Tools,
-    input_variables=["input", "intermediate_steps"]
-)
+        self.tools = [
+            Tool(
+                name="Search",
+                func=self.search.run,
+                description="基于搜索引擎的搜索工具,当您需要在互联网上搜索信息时很有用"
+            ),
 
-output_parser = Basic_OutPutParser()
-llm_chain = LLMChain(llm=llm, prompt=prompt)
+        ]
+        self.prompt = Custom_Agent_Promptlate(
+            template= self.template,
+            tools=self.tools,
+            input_variables=["input", "intermediate_steps"]
+        )
+        self.output_parser = Basic_OutPutParser()
+        self.llm_chain = LLMChain(llm=self.llm, prompt=self.prompt)
+        self.tool_names = [tool.name for tool in self.tools]
+        self.agent = LLMSingleActionAgent(
+            llm_chain=self.llm_chain,
+            output_parser=self.output_parser,
+            stop=["\n观察:"],
+            allowed_tools=self.tool_names
+        )
+        print("初始化Agent成功!")
 
-tool_names = [tool.name for tool in Tools]
-agent = LLMSingleActionAgent(
-    llm_chain=llm_chain,
-    output_parser=output_parser,
-    stop=["\n观察:"],
-    allowed_tools=tool_names
-)
+    def run(self, query: str):
+        agent_executor = AgentExecutor.from_agent_and_tools(
+            agent=self.agent, tools=self.tools, verbose=True, handle_parsing_errors=True)
+        res = agent_executor.run(query)
+        return res
 
-agent_executor = AgentExecutor.from_agent_and_tools(agent=agent, tools=Tools, verbose=True,handle_parsing_errors=True)
-res=agent_executor.run("电视剧狂飙的演员表?")
-print(res)

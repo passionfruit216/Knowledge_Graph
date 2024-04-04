@@ -40,7 +40,6 @@ class chat_glm4(LLM):
             messages=[{"role": "user", "content": prompt}],
             max_tokens=8192,
             stop = stop
-
         )
         result = response.choices[0].message.content
         return result
