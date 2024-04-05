@@ -29,8 +29,8 @@ if 'responses' not in st.session_state:
 
 if 'requests' not in st.session_state:
     st.session_state['requests'] = []
-
-
+if "history" not in st.session_state:
+    st.session_state.history = False
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
@@ -60,9 +60,10 @@ if on:
         with st.chat_message("bot"):
             st.markdown(responce)
         st.session_state.messages.append({"role": "bot", "content": responce})
+        st.session_state.history = True
+    if network:
+        st.warning("知识库聊天模式下无法联网")
 else:
-    if len(st.session_state.messages) == 0:
-        st.warning("历史消息列表为空")
     question = st.chat_input("请输入问题")
     if question:
         if network:
@@ -82,3 +83,4 @@ else:
         with st.chat_message("bot"):
             st.markdown(result)
         st.session_state.messages.append({"role": "bot", "content": result})
+        st.session_state.history = True
