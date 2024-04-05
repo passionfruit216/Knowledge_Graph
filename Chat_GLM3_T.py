@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from zhipuai import ZhipuAI
 import json
 import time
@@ -7,7 +8,7 @@ from langchain.schema.output import GenerationChunk  # 用于流式传输
 from langchain.callbacks.manager import CallbackManagerForLLMRun
 from langchain.chat_models import openai
 
-class chat_glm4(LLM):
+class chat_glm3_t(LLM):
     # 模型的各个参数
     max_token: int = 8192
     do_sample: bool = True
@@ -21,7 +22,7 @@ class chat_glm4(LLM):
     client: object = None  # 额外实现这个
     @property
     def _llm_type(self) -> str:
-        return "ChatGLM4"
+        return "ChatGLM3-Turbo"
 
     def __init__(self, zhipuai_api_key):
         super().__init__()
@@ -36,11 +37,9 @@ class chat_glm4(LLM):
             history = []
          # 常规调用
         response = self.client.chat.completions.create(
-            model="glm-4",  # 填写需要调用的模型名称
+            model="glm-3-turbo",  # 填写需要调用的模型名称
             messages=[{"role": "user", "content": prompt}],
             max_tokens=8192,
-            temperature=0.95,
-            top_p=0.7,
             stop = stop
         )
         result = response.choices[0].message.content
@@ -52,7 +51,7 @@ class chat_glm4(LLM):
             history = []
          # 常规调用
         response = self.client.chat.completions.create(
-            model="glm-4",  # 填写需要调用的模型名称
+            model="glm-3-turbo",  # 填写需要调用的模型名称
             messages=[{"role": "user", "content": prompt}],
             stream=True
         )

@@ -4,6 +4,7 @@ import time
 import numpy as np
 from DataBase import Data2Neo4j
 from Chat_GLM4 import chat_glm4
+from Chat_GLM3_T import chat_glm3_t
 from Controller import controller
 from langchain.chains import ConversationChain
 from langchain.memory import ConversationBufferMemory
@@ -13,7 +14,11 @@ st.title("知识图谱问答系统")
 with st.spinner("正在加载模型..."):
     time.sleep(1.5)
 with st.container():
+    option = st.selectbox("请选择对话模型", ["Chat-GLM4", "Chat-GLM3-TURBO"])
+with st.container():
     on = st.toggle('知识库聊天模式')
+with st.container():
+    network = st.toggle("联网开关")
 # st.session_state.clear()
 if "messages" not in st.session_state:
     st.session_state.messages = []
@@ -29,15 +34,18 @@ if 'requests' not in st.session_state:
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
-api_key = st.sidebar.text_input('ChatGLM API Key', type='password',value="9014647fdc7a2ea48bff0a141543bdf3.MLP0Fp7UeKjJ19II")
+api_key = st.sidebar.text_input('ChatGLM API Key', type='password',value="99035d83fb0030cfd79347eb96cd67f8.GeZj2XSObGEsgpB3")
 url = st.sidebar.text_input('Neo4j URL', value="neo4j://localhost:7687",type='default')
 username = st.sidebar.text_input('Neo4j Username', value="neo4j",type='default')
-pwd = st.sidebar.text_input('Neo4j Password', type='password')
+pwd = st.sidebar.text_input('Neo4j Password', type='password',placeholder="12345678")
 db= Data2Neo4j(url=url,username=username,password=pwd)
-llm = chat_glm4(zhipuai_api_key=api_key)
+if option == "Chat-GLM4":
+    llm = chat_glm4(zhipuai_api_key=api_key)
+elif option == "Chat-GLM3-TURBO":
+    llm = chat_glm3_t(zhipuai_api_key=api_key)
+
 controller = controller(DataBase=db,LLM=llm)
-with st.container():
-    network = st.toggle("联网开关")
+
 
 if on:
     prompt=st.chat_input("请输入问题")
@@ -46,7 +54,8 @@ if on:
             st.markdown(prompt)
 
         st.session_state.messages.append({"role": "user", "content": prompt})
-        responce = controller.query(text=prompt)
+        with st.progress(0, text=None):
+            responce = controller.query(text=prompt)
 
         with st.chat_message("bot"):
             st.markdown(responce)

@@ -4,10 +4,12 @@ from typing import Any, Literal
 from langchain.schema import BaseOutputParser, OutputParserException
 import ast
 # 自定义输出解释器
-format = """输出以python字典的格式输出.其中包含三个键,一个是唯一主体,一个是关系三元组,一个是主题,格式如下:\n
-        主题: 根据用户文本内容确定的主题\n
+format = """输出严格以python字典的格式输出.其中包含三个键,一个是唯一主体,一个是关系三元组,一个是主题,格式如下:\n
+        主题: 根据下方主题列表确定的对话主题,如果找不到就自行确定\n
         唯一主体: 根据用户文本内容确定的唯一主体\n
         关系: 根据用户文本内容提取的关系三元组\n
+        主题列表:[人物,动物,植物,地点,事件,物品,疾病,其他]\n
+        关系三元组: 以列表的形式存储,每个元素是一个三元组,三元组的格式是(主体,关系,客体)\n
         """
 
 
@@ -28,7 +30,8 @@ class CustomOutputParser(BaseOutputParser[str]):
                 result = eval(dict_content)  # 使用eval函数将字符串转换为字典
                 return result
             except Exception as e:
-                raise OutputParserException(f"解析字典失败: {e},如果出现此情况,请重复运行试试")
+                print(dict_content)
+                return None
         else:
             OutputParserException(
                 "The response has no code block.",

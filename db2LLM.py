@@ -33,8 +33,7 @@ class inputs2db():
 
     def text2Cypher(self, texts: str):
         template = """请你将用户的内容根据主体列表提取分别提取 唯一主体 和 主题 ,并从主题列表中确定这句话所询问的主题是什么,然后以{format_instructions}的格式返回,如果无法确定主题,请返回'无法确定主题'。\n
-        主题列表:{topic}
-        主体列表:{Subject}
+        主题列表:{topic}\n
         """
         human_template = "{text}"
         Human_message = HumanMessagePromptTemplate.from_template(
@@ -51,13 +50,15 @@ class inputs2db():
         chain = LLMChain(llm=self.llm, prompt=message)
         res = chain.run({"text": texts,
                          "format_instructions": OutputParser.get_format_instructions(),
-                         "topic": self.db.show_all_label(),
-                         "Subject": self.db.show_all_Node()})
+                         "topic": self.db.show_all_label(),})
         print(res)
         pattern = r'": "(.*?)"'
         matches = re.findall(pattern, res)
         label = matches[0]
         name = matches[1]
+        # 记得加上判断主体是否存在的代码
+        if not self.db.node_is_exist(label, name):
+            return "询问的主体不存在数据库中,请重新查询"
         query,result = self.db.Precise_queries(label, name)
         print("生成的Cypher语句为{}".format(query))
         answer=self.Cypher_Summary(result)

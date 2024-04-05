@@ -4,6 +4,7 @@ from langchain.prompts.chat import HumanMessagePromptTemplate, SystemMessageProm
 from langchain.chains import LLMChain
 from langchain.output_parsers import StructuredOutputParser, ResponseSchema
 from Custom_paser import CustomOutputParser
+from langchain.output_parsers import OutputFixingParser
 
 
 # 实现用户输入的文本提取关系并插入数据库
@@ -15,12 +16,8 @@ class text2neo4j():
         self.llm = LLM
 
     def get_texts(self, text: str):
-        template = """你擅长关系提取,将用户输入的文字按照例子尽可能多的进行关系提取,并确定文本内容的唯一主体.并从主题列表确认用户输入文字的主题,如果主题列表中无法确定主题,请自行确认主题.
-主题列表:[动物,植物,人物,地点,事件,其他]
-并以{format_instructions}的格式输出.\n
-例子: 树袋熊的生活几乎全部在桉树上度过，每天睡眠时间长达17-20小时，具有夜行性和领域性
-提取到的关系:(树袋熊,生活在,树上),(树袋熊,睡眠时间,17-20小时),(树袋熊,习性,夜行性和领域性)
-提取到的唯一主体: 树袋熊
+        template = """你擅长提取实体,将用户输入的文字提取尽可能多的实体,并将这些实体生成关系三元组,注意不要修改实体名字,实体的名字不要太长\n
+输出格式:{format_instructions}\n
 用户输入的文字:
         """
         sys_message = SystemMessagePromptTemplate.from_template(template)
@@ -34,6 +31,9 @@ class text2neo4j():
         res = chain.run(
             {"text": text, "format_instructions": OutputParser.get_format_instructions()})
         output = OutputParser.parse(res)
+        if output is None:
+            new_parser = OutputFixingParser.from_llm(parser=OutputParser, llm=self.llm)
+            output=new_parser.parse(res)
         print(output)
         return output
 
