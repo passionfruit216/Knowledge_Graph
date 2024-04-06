@@ -38,12 +38,16 @@ api_key = st.sidebar.text_input('ChatGLM API Key', type='password',value="99035d
 url = st.sidebar.text_input('Neo4j URL', value="neo4j://localhost:7687",type='default')
 username = st.sidebar.text_input('Neo4j Username', value="neo4j",type='default')
 pwd = st.sidebar.text_input('Neo4j Password', type='password',placeholder="12345678")
+if pwd == "":
+    st.toast('请填写Neo4j密码', icon="⚠️")
 db= Data2Neo4j(url=url,username=username,password=pwd)
 if option == "Chat-GLM4":
     llm = chat_glm4(zhipuai_api_key=api_key)
 elif option == "Chat-GLM3-TURBO":
     llm = chat_glm3_t(zhipuai_api_key=api_key)
 
+if "pwd" not in st.session_state:
+    st.session_state.pwd = pwd
 controller = controller(DataBase=db,LLM=llm)
 
 

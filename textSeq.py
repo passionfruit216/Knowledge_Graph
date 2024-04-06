@@ -16,7 +16,7 @@ class text2neo4j():
         self.llm = LLM
 
     def get_texts(self, text: str):
-        template = """你擅长提取实体,将用户输入的文字提取尽可能多的实体,并将这些实体生成关系三元组,注意不要修改实体名字,实体的名字不要太长\n
+        template = """你擅长提取实体,请你提取所有的实体并组成关系三元组,必须把所有的实体都用到,请仔细检查,做到不遗漏每个实体的三元组\n
 输出格式:{format_instructions}\n
 用户输入的文字:
         """

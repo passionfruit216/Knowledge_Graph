@@ -121,10 +121,12 @@ class Data2Neo4j:
         net = Network(directed=True, width="1920px", height="1080px", cdn_resources="in_line")
         # 节点
         color_entity = "#00FF00"
+        relations['关系'] = [(rel[0][:9], rel[1], rel[2][:9] + '...' if len(rel[0]) > 9 or len(rel[2]) > 9 else rel[2]) for
+                        rel in relations['关系']]
         # 添加节点和关系
         for e in relations["关系"]:
-            net.add_node(e[0], shape="circle", color=color_entity,labelHighlightBold=True)
-            net.add_node(e[2], shape="circle", color=color_entity,labelHighlightBold=True)
+            net.add_node(e[0], shape="circle", color=color_entity,labelHighlightBold=True,size =20)
+            net.add_node(e[2], shape="circle", color=color_entity,labelHighlightBold=True,size =20)
             net.add_edge(e[0],e[2],title=e[1],label=e[1])
 
         net.repulsion(

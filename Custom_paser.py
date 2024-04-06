@@ -5,7 +5,7 @@ from langchain.schema import BaseOutputParser, OutputParserException
 import ast
 # 自定义输出解释器
 format = """输出严格以python字典的格式输出.其中包含三个键,一个是唯一主体,一个是关系三元组,一个是主题,格式如下:\n
-        主题: 根据下方主题列表确定的对话主题,如果找不到就自行确定\n
+        主题: 根据下方主题列表确定的对话主题\n
         唯一主体: 根据用户文本内容确定的唯一主体\n
         关系: 根据用户文本内容提取的关系三元组\n
         主题列表:[人物,动物,植物,地点,事件,物品,疾病,其他]\n
