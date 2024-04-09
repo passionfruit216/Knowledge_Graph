@@ -37,7 +37,7 @@ for message in st.session_state.messages:
 api_key = st.sidebar.text_input('ChatGLM API Key', type='password',value="99035d83fb0030cfd79347eb96cd67f8.GeZj2XSObGEsgpB3")
 url = st.sidebar.text_input('Neo4j URL', value="neo4j://localhost:7687",type='default')
 username = st.sidebar.text_input('Neo4j Username', value="neo4j",type='default')
-pwd = st.sidebar.text_input('Neo4j Password', type='password',placeholder="12345678")
+pwd = st.sidebar.text_input('Neo4j Password', type='password',placeholder="12345678",value="12345678")
 if pwd == "":
     st.toast('请填写Neo4j密码', icon="⚠️")
 db= Data2Neo4j(url=url,username=username,password=pwd)

@@ -3,6 +3,7 @@ import streamlit as st
 from Controller import controller
 from DataBase import Data2Neo4j
 from Chat_GLM4 import chat_glm4
+import copy
 import streamlit.components.v1 as components
 st.title("知识图谱的文本嵌入和展示")
 # 加载模型
@@ -10,7 +11,7 @@ st_model_load = st.text('正在加载模型和数据库...')
 api_key = st.sidebar.text_input('ChatGLM API Key', type='password',value="99035d83fb0030cfd79347eb96cd67f8.GeZj2XSObGEsgpB3")
 url = st.sidebar.text_input('Neo4j URL', value="neo4j://localhost:7687",type='default')
 username = st.sidebar.text_input('Neo4j Username', value="neo4j",type='default')
-pwd = st.sidebar.text_input('Neo4j Password', type='password',placeholder="12345678")
+pwd = st.sidebar.text_input('Neo4j Password', type='password',placeholder="12345678",value="12345678")
 if pwd == "":
     st.toast('请填写Neo4j密码', icon="⚠️")
 db= Data2Neo4j(url=url,username=username,password=pwd)
@@ -37,9 +38,10 @@ with tab1:
             result=controller.generate_short_text(text)
             # st.write(result["关系"])
             print(result)
-            db.create_temp_html(relations=result)
-            st.session_state.kb_chart = "./networks/temp.html"
             st.session_state.result = result
+            t_result =copy.deepcopy(result)
+            db.create_temp_html(relations=t_result)
+            st.session_state.kb_chart = "./networks/temp.html"
             if 'kb_chart' not in st.session_state:
                 st.session_state.kb_chart = None
             if st.session_state.kb_chart:
