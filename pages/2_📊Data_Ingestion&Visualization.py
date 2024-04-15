@@ -4,6 +4,7 @@ from Controller import controller
 from DataBase import Data2Neo4j
 from Chat_GLM4 import chat_glm4
 import copy
+from vector_store import vector_store
 import streamlit.components.v1 as components
 st.title("知识图谱的文本嵌入和展示")
 # 加载模型
@@ -16,7 +17,12 @@ if pwd == "":
     st.toast('请填写Neo4j密码', icon="⚠️")
 db= Data2Neo4j(url=url,username=username,password=pwd)
 llm = chat_glm4(zhipuai_api_key=api_key)
-controller = controller(DataBase=db,LLM=llm)
+if "vector_db" not in st.session_state:
+    st.session_state.vector_db = vector_store()
+
+if "controller" not in st.session_state:
+    st.session_state.controller = controller(DataBase=db,LLM=llm,Vector_Store=st.session_state.vector_db)
+
 st.success('Model loaded!')
 st_model_load.text("")
 if 'result' not in st.session_state:
@@ -35,7 +41,7 @@ with tab1:
     button_text = "根据文本生成并展示知识图谱"
     with st.spinner('正在生成知识图谱...'):
         if st.button(button_text):
-            result=controller.generate_short_text(text)
+            result=st.session_state.controller.generate_short_text(text)
             # st.write(result["关系"])
             print(result)
             st.session_state.result = result
@@ -56,7 +62,7 @@ with tab2:
     if  st.session_state.state == False:
         st.warning("请先生成知识图谱",icon="⚠️")
     else:
-        clicked = st.button("将关系插入到数据库",on_click=controller.insert_short_text(text=st.session_state.result))
+        clicked = st.button("将关系插入到数据库",on_click=st.session_state.controller.insert_short_text(text=st.session_state.result))
         if clicked :
             relations_legth = len(st.session_state.result["关系"])
             st.success('成功插入{}条关系到数据库!'.format(relations_legth), icon="✅")

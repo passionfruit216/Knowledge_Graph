@@ -2,12 +2,16 @@
 # 完成数据库的查询 以及返回结果
 from py2neo import Graph, Node, Relationship, NodeMatcher
 from pyvis.network import Network
+from typing import Optional
+from langchain.prompts import PromptTemplate
+from langchain.chains import LLMChain
 
 # 数据库操作类
 class Data2Neo4j:
-    def __init__(self, url, username, password):
+    def __init__(self, url, username, password,llm:Optional=None):
         self.graph = Graph(url, user=username, password=password)
         self.matcher = NodeMatcher(self.graph)
+        self.llm = llm
         print("*********数据库连接成功***********")
 
     def create_node(self, label, name):
@@ -139,3 +143,22 @@ class Data2Neo4j:
         net.show_buttons(filter_=['physics'])
         net.set_edge_smooth(smooth_type='dynamic')
         net.show('./networks/{}'.format(file_name), notebook=False)
+
+    def merge(self,label):
+        template = """请你回答用户的问题,并按照输出格式进行输出
+输出格式:只能回答 YES ,NO 如果不知道就回答 无法确定\n
+用户的问题:{input}
+"""
+        query = f"MATCH (n:{label})-[r]->() WITH n, COUNT(r) AS outDegree WHERE outDegree > 5 RETURN n"
+        result = self.query(query)
+        print(result)
+        print(type(result))
+        prompt = PromptTemplate(input_variables=["input"],
+                                template=template)
+        chain = LLMChain(llm=self.llm, prompt=prompt)
+
+        return result
+        # for item in result:
+        #     res = chain.run({"input": item})
+        #
+        # chain.run({"input": })

@@ -1,3 +1,4 @@
+from langchain_core.outputs import ChatGenerationChunk
 from zhipuai import ZhipuAI
 import json
 import time
@@ -6,7 +7,10 @@ from typing import Optional, List, Any, Mapping, Iterator
 from langchain.schema.output import GenerationChunk  # 用于流式传输
 from langchain.callbacks.manager import CallbackManagerForLLMRun
 from langchain.chat_models import openai
-
+from langchain_core.callbacks.manager import CallbackManager
+from langchain_core.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
+from langchain_core.messages.ai import AIMessageChunk
+from typing import Dict
 class chat_glm4(LLM):
     # 模型的各个参数
     max_token: int = 8192
@@ -46,19 +50,48 @@ class chat_glm4(LLM):
         result = response.choices[0].message.content
         return result
 
-#　流式传输(算一个字输出一个字)
-    def _stream(self, prompt: str, history: List = None)-> Iterator[GenerationChunk]:
+    def sse_invoke(self, prompt: str, history=[]):
         if history is None:
             history = []
-         # 常规调用
+
+        history.append({"role": "user", "content": prompt})
         response = self.client.chat.completions.create(
             model="glm-4",  # 填写需要调用的模型名称
-            messages=[{"role": "user", "content": prompt}],
-            stream=True
+            messages=history,
+            stream=True,
         )
-        print(type(response))
-        for chunk in response:
-            print(chunk.choices[0].delta)
+        return response
 
+    def _stream(  # type: ignore[override]
+            self,
+            prompt: List[Dict[str, str]],
+            stop: Optional[List[str]] = None,
+            run_manager: Optional[CallbackManagerForLLMRun] = None,
+            **kwargs: Any,
+    ) -> Iterator[ChatGenerationChunk]:
+        """Stream the chat response in chunks."""
+        response = self.sse_invoke(prompt)
+
+        for chunk in response:
+            if chunk.choices[0].delta:
+                delta = chunk.choices[0].delta.content
+
+                chunk = ChatGenerationChunk(message=AIMessageChunk(content=delta))
+                if run_manager:
+                    run_manager.on_llm_new_token(delta, chunk=chunk)
+                yield chunk
+
+"""
+  for r in response.events():
+            if r.event == "add":
+                delta = r.data
+                chunk = ChatGenerationChunk(message=AIMessageChunk(content=delta))
+                if run_manager:
+                    run_manager.on_llm_new_token(delta, chunk=chunk)
+                yield chunk
+
+            elif r.event == "error":
+                raise ValueError(f"Error from ZhipuAI API response: {r.data}")
+"""
 
 # 后续实现工具调用?

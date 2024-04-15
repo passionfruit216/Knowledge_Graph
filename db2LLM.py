@@ -7,32 +7,32 @@ from langchain.chains.llm import LLMChain
 from langchain.output_parsers import StructuredOutputParser, ResponseSchema
 from langchain.prompts import PromptTemplate
 from langchain.cache import SQLiteCache
+from vector_store import vector_store
+
 
 class inputs2db():
     def __init__(
             self,
             DataBase,
-            LLM):
+            LLM, Vector_Store):
         self.db = DataBase
         self.llm = LLM
         self.cache = SQLiteCache(database_path="./cache.db")
+        self.vector_db = Vector_Store
         print("**************** 根据用户的提问生成查询语句 *******************")
 
-
-    def Cypher_Summary(self,query:str):
+    def Cypher_Summary(self, query: str):
         template = """你擅长进行总结,请对以下关系三元组进行总结\n
         关系三元组:{triples}
         """
-        prompt=PromptTemplate(input_variables=["triples"],
-                       template=template)
-        chain=LLMChain(llm=self.llm, prompt=prompt)
-        result=chain.run({"triples":query})
+        prompt = PromptTemplate(input_variables=["triples"],
+                                template=template)
+        chain = LLMChain(llm=self.llm, prompt=prompt)
+        result = chain.run({"triples": query})
         return result
 
-
-
     def text2Cypher(self, texts: str):
-        template = """请你将用户的内容根据主体列表提取分别提取 唯一主体 和 主题 ,并从主题列表中确定这句话所询问的主题是什么,然后以{format_instructions}的格式返回,如果无法确定主题,请返回'无法确定主题'。\n
+        template = """请你将用户的内容根据主体列表提取分别提取 唯一主体 和 主题 ,并从主题列表中确定这句话所询问的主题是什么,注意主体要和主题对应,然后以{format_instructions}的格式返回,如果无法确定主题,请返回'无法确定主题'。\n
         主题列表:{topic}\n
         """
         human_template = "{text}"
@@ -50,7 +50,7 @@ class inputs2db():
         chain = LLMChain(llm=self.llm, prompt=message)
         res = chain.run({"text": texts,
                          "format_instructions": OutputParser.get_format_instructions(),
-                         "topic": self.db.show_all_label(),})
+                         "topic": self.db.show_all_label(), })
         print(res)
         pattern = r'": "(.*?)"'
         matches = re.findall(pattern, res)
@@ -58,12 +58,15 @@ class inputs2db():
         name = matches[1]
         # 记得加上判断主体是否存在的代码
         if not self.db.node_is_exist(label, name):
-            return "询问的主体不存在数据库中,请重新查询"
-        query,result = self.db.Precise_queries(label, name)
+            res = self.vector_db.serach_node(name)
+            if len(res) > 0:
+                name =res[0][0].page_content
+            else:
+                return "数据库中不存在相关内容,请提供更多资料!"
+        if not self.db.node_is_exist(label, name):
+            return "数据库中不存在相关内容,请提供更多资料!"
+        query, result = self.db.Precise_queries(label, name)
         print("生成的Cypher语句为{}".format(query))
-        answer=self.Cypher_Summary(result)
+        answer = self.Cypher_Summary(result)
         print(answer)
         return answer
-
-
-

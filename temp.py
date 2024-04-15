@@ -2,7 +2,10 @@
 
 from db2LLM import *
 import ast
+import time
 from DataBase import Data2Neo4j
+from langchain_community.chat_models import ChatZhipuAI
+langchain_community.chat_models.zhipuai
 from textSeq import *
 from langchain.prompts.chat import HumanMessagePromptTemplate,SystemMessagePromptTemplate,ChatPromptTemplate
 from langchain.chains import LLMChain
@@ -10,10 +13,21 @@ from Chat_GLM4 import chat_glm4
 from textSeq import text2neo4j
 from Custom_paser import CustomOutputParser
 from Controller import controller
+from vector_store import vector_store
 llm = chat_glm4(zhipuai_api_key="9014647fdc7a2ea48bff0a141543bdf3.MLP0Fp7UeKjJ19II")  # 自行填写自己的api
 from langchain.memory import ConversationBufferMemory  #　实现连续对话
 db= Data2Neo4j(url="neo4j://localhost:7687",username="neo4j",password="12345678")  # 自行填写自己的数据库
-db.delete_all()
+name = db.show_all_Node()
+name = list(name)
+print(name)
+start_time = time.time()
+vector_store= vector_store()
+end_time = time.time()
+print(end_time-start_time)
+# vector_store.add_node(name)
+res=vector_store.serach_node("头疼")
+print(res)
+print(res[0][0].page_content)
 # controller=controller(DataBase=db,LLM=llm)  # 实例化控制器
 # question = "感冒的症状有哪些?"  #　 需要询问的问题
 # result=controller.query(text=question)
@@ -27,7 +41,7 @@ db.delete_all()
 # """
 # controller.insert_short_text(texts)  #　根据文本插入数据库
 #
-import asyncio
+
 
 
 # model = chat_glm4(zhipuai_api_key="9014647fdc7a2ea48bff0a141543bdf3.MLP0Fp7UeKjJ19II")

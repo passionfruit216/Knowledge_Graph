@@ -13,14 +13,15 @@ from langchain.chains import ConversationChain
 from pyvis.network import Network
 import time
 from langchain.agents import AgentExecutor
-
+from vector_store import vector_store
 # 程序的核心控制器
 class controller():
-    def __init__(self,DataBase,LLM):
+    def __init__(self,DataBase,LLM,Vector_Store):
         self.db = DataBase
         self.llm = LLM
+        self.vector_db =Vector_Store
         self.text2neo4j = text2neo4j(self.db, self.llm)
-        self.input2db = inputs2db(DataBase=self.db,LLM=self.llm)
+        self.input2db = inputs2db(DataBase=self.db,LLM=self.llm,Vector_Store=self.vector_db)
         self.cache = SQLiteCache(database_path="./cache.db")
 
     def insert_short_text(self,text:str):

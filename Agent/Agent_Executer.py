@@ -41,9 +41,9 @@ class Custom_Agent():
 观察: 电视剧狂飙的详细信息
 想法: 我现在知道最终答案了
 输出的文本:最终答案: 电视剧《狂飙》的演员阵容包括张译、张颂文、李一桐、张志坚、吴刚等主演，以及倪大红、韩童生、李建义、石兆琪等特邀主演。该剧由李健、高叶、王骁等演员主演。
-
 开始！按照例子进行回答，记住要以助手的口吻说话。Let's think step by step
-提问: {input}
+用户对话历史:{chat_history}
+新的提问: {input}
 {agent_scratchpad}
 """
         self.tools = [
@@ -57,7 +57,7 @@ class Custom_Agent():
         self.prompt = Custom_Agent_Promptlate(
             template= self.template,
             tools=self.tools,
-            input_variables=["input", "intermediate_steps"]
+            input_variables=["input", "intermediate_steps","chat_history"]
         )
         self.output_parser = Basic_OutPutParser()
         self.llm_chain = LLMChain(llm=self.llm, prompt=self.prompt)
@@ -70,9 +70,9 @@ class Custom_Agent():
         )
         print("初始化Agent成功!")
 
-    def run(self, query: str):
+    def run(self, query: str, chat_history):
         agent_executor = AgentExecutor.from_agent_and_tools(
-            agent=self.agent, tools=self.tools, verbose=True, handle_parsing_errors=True)
+            agent=self.agent, tools=self.tools, verbose=True, handle_parsing_errors=True,memory=chat_history)
         res = agent_executor.run(query)
         return res
 
