@@ -8,8 +8,7 @@ from typing import List
 from langchain_community.vectorstores import Chroma
 
 
-# os.environ["OPENAI_API_KEY"] = "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"
-class vector_store():
+class vector_store():git 
     def __init__(self):
         self.embeddings = HuggingFaceEmbeddings(model_name="infgrad/stella-mrl-large-zh-v3.5-1792d")
         vectordb = Chroma(persist_directory="database/vector_db", embedding_function=self.embeddings)
