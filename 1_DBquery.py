@@ -88,7 +88,7 @@ else:
                 verbose=True,
                 memory=st.session_state.buffer_memory
             )
-            result = conversation.stream(input=question)
+            result = conversation.run(question)
         with st.chat_message("user"):
             st.markdown(question)
 

@@ -32,7 +32,7 @@ Clone 这个 project
 运行测试
 
 ```bash
-  python temp.py
+streamlit run 1_DBquery.py --server.port 9091
 ```
 
 
