@@ -48,8 +48,16 @@ class Data2Neo4j:
         result = self.query(query)
         for i in result:
             print(i)
-
         return query,result
+
+    def Precise_queries_node(self, label, names):
+        query =f"MATCH (n:{label} {{name: '{names}'}})-[r]-(m) RETURN m.name"
+        result = self.query(query)
+        cnt = set()
+        for i in result:
+            print(i['m.name'])
+            cnt.add(i['m.name'])
+        return cnt
 
     def show_all_label(self):
         result = self.query(f"CALL db.labels()")
@@ -162,3 +170,32 @@ class Data2Neo4j:
         #     res = chain.run({"input": item})
         #
         # chain.run({"input": })
+
+    def show_label_name(self,label,name):
+        # 创建网络
+
+        net = Network(directed=True, width="1920px", height="1080px", cdn_resources="in_line")
+        # 节点
+        color_entity = "#00FF00"
+        # 添加节点和关系
+        query,nodes_rel = self.Precise_queries(label, name)
+        for i in nodes_rel:
+            net.add_node(i['disease']['name'], shape="circle", color=color_entity, labelHighlightBold=True)
+            net.add_node(i['related']['name'], shape="circle", color=color_entity, labelHighlightBold=True)
+            net.add_edge(i['disease']['name'], i['related']['name'],
+                         title=type(i['r']).__name__, label=type(i['r']).__name__)
+
+            # save network
+
+        net.repulsion(
+            node_distance=200,
+            central_gravity=0.2,
+            spring_length=200,
+            spring_strength=0.05,
+            damping=0.09
+        )
+        net.show_buttons(filter_=['physics'])
+        net.set_edge_smooth(smooth_type='dynamic')
+        net.show('./networks/{}'.format("result.html"), notebook=False)
+
+

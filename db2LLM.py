@@ -45,6 +45,7 @@ class inputs2db():
         ]
         OutputParser = StructuredOutputParser.from_response_schemas(
             response_schemas)
+
         message = ChatPromptTemplate.from_messages(
             [Human_message, Sys_message])
         chain = LLMChain(llm=self.llm, prompt=message)
@@ -65,8 +66,11 @@ class inputs2db():
                 return "数据库中不存在相关内容,请提供更多资料!"
         if not self.db.node_is_exist(label, name):
             return "数据库中不存在相关内容,请提供更多资料!"
+
         query, result = self.db.Precise_queries(label, name)
+        self.db.show_label_name(label,name)
         print("生成的Cypher语句为{}".format(query))
+
         answer = self.Cypher_Summary(result)
         print(answer)
         return answer

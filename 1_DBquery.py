@@ -10,6 +10,7 @@ from langchain.chains import ConversationChain
 from langchain.memory import ConversationBufferMemory
 from langchain.memory import ConversationBufferWindowMemory
 from langchain.chains.llm import LLMChain
+import streamlit.components.v1 as components
 from langchain.prompts import PromptTemplate
 from vector_store import vector_store
 st.title("知识图谱问答系统")
@@ -68,8 +69,17 @@ if on:
 
         st.session_state.messages.append({"role": "user", "content": prompt})
         with st.progress(0, text=None):
+            st.session_state.result_chart = "./networks/result.html"
+            if 'result_chart' not in st.session_state:
+                st.session_state.result_chart = None
+            if st.session_state.result_chart:
+                with st.container():
+                    st.subheader("生成的知识图谱")
+                    st.markdown("你可以拖动并查看知识图谱")
+                    html_source_code = open(st.session_state.result_chart, 'r', encoding='utf-8').read()
+                    components.html(html_source_code, width=700, height=700)
+                    st.session_state.state = True
             responce = st.session_state.controller.query(text=prompt)
-
         with st.chat_message("bot"):
             st.markdown(responce)
         st.session_state.messages.append({"role": "bot", "content": responce})
