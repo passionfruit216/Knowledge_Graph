@@ -8,9 +8,9 @@ import re
 from Chat_GLM4 import chat_glm4
 from Agent.Basic_OutputParser import Basic_OutPutParser
 from Agent.Custom_Agent_Prompt import Custom_Agent_Promptlate
-SERPAPI_API_KEY = "c77aa41c55a1ece06909530ccfbe99a6fb2242bded10bb4b7cac7aad6ebc600d"
+SERPAPI_API_KEY = ""
 llm = chat_glm4(
-    zhipuai_api_key="9014647fdc7a2ea48bff0a141543bdf3.MLP0Fp7UeKjJ19II")
+    zhipuai_api_key="")
 
 
 class Custom_Agent():

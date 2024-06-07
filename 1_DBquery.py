@@ -40,7 +40,7 @@ if "history" not in st.session_state:
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
-api_key = st.sidebar.text_input('ChatGLM API Key', type='password',value="99035d83fb0030cfd79347eb96cd67f8.GeZj2XSObGEsgpB3")
+api_key = st.sidebar.text_input('ChatGLM API Key', type='password')
 url = st.sidebar.text_input('Neo4j URL', value="neo4j://localhost:7687",type='default')
 username = st.sidebar.text_input('Neo4j Username', value="neo4j",type='default')
 pwd = st.sidebar.text_input('Neo4j Password', type='password',placeholder="12345678",value="12345678")
